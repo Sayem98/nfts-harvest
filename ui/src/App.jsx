@@ -1,3 +1,4 @@
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { WagmiConfig, createConfig } from "wagmi";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
@@ -9,6 +10,10 @@ import MobileConnectButton from "./components/MobileConnectButton";
 import { UIProvider } from "./contexts/UIContext";
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "./components/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AppLayout from "./components/AppLayout";
+import Homepage from "./pages/Homepage";
+import Admin from "./pages/Admin";
 
 const chains = [polygon];
 const config = createConfig(
@@ -33,14 +38,21 @@ function App() {
     <WagmiConfig config={config}>
       <ConnectKitProvider>
         <UIProvider>
-          <div className="w-full h-screen flex flex-col overflow-x-hidden md:overflow-y-scroll px-4 sm:px-24 py-6">
-            <Header />
-            <main className="flex-1">
-              <MobileConnectButton />
-              <Dashboard />
-            </main>
-            <Footer />
-          </div>
+          <BrowserRouter>
+            <Routes>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<Homepage />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <Admin />
+                    </ProtectedRoute>
+                  }
+                />
+              </Route>
+            </Routes>
+          </BrowserRouter>
           <ToastContainer />
         </UIProvider>
       </ConnectKitProvider>
