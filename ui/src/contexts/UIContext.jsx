@@ -7,6 +7,7 @@ import {
   getNFTs,
   claimRewardAll,
   finalClaim,
+  getLuckyWinner,
 } from "../services/nftService";
 import { getUserData } from "../services/userService";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../contracts/contract";
@@ -35,6 +36,7 @@ function UIProvider({ children }) {
   // search
   const [searchBB, setSearchBB] = useState("");
   const [searchWA, setSearchWA] = useState("");
+  const [luckyWinner, setLuckyWinner] = useState({});
 
   useEffect(() => {
     if (!address) return;
@@ -63,6 +65,19 @@ function UIProvider({ children }) {
     searchBB,
     searchWA,
   ]);
+
+  useEffect(() => {
+    async function fetchLuckyWinner() {
+      try {
+        const data = await getLuckyWinner();
+        setLuckyWinner(data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    fetchLuckyWinner();
+  }, []);
 
   useEffect(() => {
     async function getAndCreate() {
@@ -190,6 +205,7 @@ function UIProvider({ children }) {
         limit,
         setSearchBB,
         setSearchWA,
+        luckyWinner,
       }}
     >
       {children}

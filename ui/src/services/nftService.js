@@ -46,3 +46,18 @@ export async function finalClaim(address) {
   const { data } = await axios.post(`${BASE_API}/final-claim/${address}`);
   return data;
 }
+
+export async function getAllLuckyNfts(nftType) {
+  const { data } = await axios.get(`${BASE_API}/lucky-nft/${nftType}`);
+  return data;
+}
+
+export async function selectLuckyNfts(nftType) {
+  const { data } = await axios.post(`${BASE_API}/lucky-nft/${nftType}`);
+  return data;
+}
+
+export async function getLuckyWinner() {
+  const { data } = await axios.get(`${BASE_API}/lucky-winner`);
+  return data;
+}

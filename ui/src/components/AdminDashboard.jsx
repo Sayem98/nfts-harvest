@@ -1,41 +1,10 @@
+import { useState } from "react";
 import Pagination from "./Pagination";
 import Table from "./Table";
-
-const brainyNfts = [
-  {
-    nftID: 111,
-    payority: "High",
-    date: "1 Jan 2023",
-  },
-  {
-    nftID: 324,
-    payority: "Low",
-    date: "2 Jan 2023",
-  },
-  {
-    nftID: 122,
-    payority: "High",
-    date: "5 Jan 2023",
-  },
-];
-
-const wearyNfts = [
-  {
-    nftID: 111,
-    payority: "High",
-    date: "1 Jan 2023",
-  },
-  {
-    nftID: 324,
-    payority: "Low",
-    date: "2 Jan 2023",
-  },
-  {
-    nftID: 122,
-    payority: "High",
-    date: "5 Jan 2023",
-  },
-];
+import { useGetLuckyNfts } from "../hooks/useGetLuckyNfts";
+import Spinner from "./Spinner";
+import { selectLuckyNfts } from "../services/nftService";
+import { toast } from "react-toastify";
 
 function NFTDashboard({ title, handlePick, luckyNfts = [] }) {
   return (
@@ -44,7 +13,7 @@ function NFTDashboard({ title, handlePick, luckyNfts = [] }) {
         <div className="flex justify-center relative w-full">
           <strong className="text-lg text-pink-500">{title}</strong>
           <button
-            className="bg-pink-500 text-white rounded-md px-4 md:px-6 py-1 block absolute top-0 right-0"
+            className="bg-pink-500 text-white rounded-md px-4 md:px-12 py-2 block absolute top-0 right-0"
             onClick={handlePick}
           >
             Pick
@@ -57,21 +26,29 @@ function NFTDashboard({ title, handlePick, luckyNfts = [] }) {
         <Table.Header>
           <span>#</span>
           <span>NFT ID</span>
-          <span>Payority</span>
+          <span>Rearity</span>
           <span>date</span>
         </Table.Header>
         <Table.Body>
-          {luckyNfts.map((nft, index) => (
+          {luckyNfts.map((luckyNft, index) => (
             <Table.Row key={index}>
               <span>{index + 1}</span>
-              <span>{nft.nftID}</span>
-              <span>{nft.payority}</span>
-              <span>{nft.date}</span>
+              <span>{luckyNft.nft.nftID}</span>
+              <span>{(Math.random() * 100).toFixed(2)}</span>
+              <span>
+                {new Intl.DateTimeFormat("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+                  .format(new Date(luckyNft.nft.createdAt))
+                  .toString()}
+              </span>
             </Table.Row>
           ))}
         </Table.Body>
         <Table.Footer>
-          <Pagination />
+          <Pagination count={luckyNfts.length} />
         </Table.Footer>
       </Table>
     </div>
@@ -79,13 +56,32 @@ function NFTDashboard({ title, handlePick, luckyNfts = [] }) {
 }
 
 function AdminDashboard() {
-  function handleBrainyPick() {
-    console.log("handleBrainyPick");
+  const { loading: loading1, nfts: brainyNfts } = useGetLuckyNfts(1);
+  const { loading: loading2, nfts: wearyNfts } = useGetLuckyNfts(2);
+
+  async function handleBrainyPick() {
+    try {
+      await selectLuckyNfts(1);
+      toast.success("Brainy Budz picked!");
+      window.location.reload();
+    } catch (err) {
+      console.log(err?.response?.data);
+      toast.error(err?.response?.data);
+    }
   }
 
-  function handleWearyPick() {
-    console.log("handleWearyPick");
+  async function handleWearyPick() {
+    try {
+      await selectLuckyNfts(2);
+      toast.success("Weary Apes picked!");
+      window.location.reload();
+    } catch (err) {
+      console.log(err?.response?.data);
+      toast.error(err?.response?.data);
+    }
   }
+
+  if (loading1 || loading2) return <Spinner />;
 
   return (
     <div className="flex flex-col justify-center items-center gap-12 pt-10 w-full">

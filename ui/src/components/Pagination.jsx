@@ -1,13 +1,39 @@
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi2";
+import { useSearchParams } from "react-router-dom";
 
-function Pagination() {
-  function handlePrev() {}
-  function handleNext() {}
+const PAGE_SIZE = 5;
+
+function Pagination({ count }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = !searchParams.get("page")
+    ? 1
+    : Number(searchParams.get("page"));
+
+  const pageCount = Math.ceil(count / PAGE_SIZE);
+
+  function handlePrev() {
+    const prev = currentPage === 1 ? currentPage : currentPage - 1;
+    searchParams.set("page", prev);
+    setSearchParams(searchParams);
+  }
+
+  function handleNext() {
+    const next = currentPage === pageCount ? currentPage : currentPage + 1;
+    searchParams.set("page", next);
+    setSearchParams(searchParams);
+  }
+
+  if (pageCount <= 1) return null;
 
   return (
     <>
       <p className="text-xs md:text-sm">
-        Showing <strong>1</strong> to <strong>5</strong> of <strong>8</strong>{" "}
+        Showing<span className="mx-1">{(currentPage - 1) * PAGE_SIZE + 1}</span>
+        to
+        <span className="mx-1">
+          {currentPage === pageCount ? count : currentPage * PAGE_SIZE}
+        </span>
+        of<span className="mx-1">{count}</span>
         results
       </p>
       <div className="text-sm flex gap-2 items-center">

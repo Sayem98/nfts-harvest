@@ -24,7 +24,7 @@ function TableRow({ children }) {
 
 function TableFooter({ children }) {
   return (
-    <div className="flex items-center justify-between border px-3 py-2 border-gray-600">
+    <div className="flex items-center justify-between border px-3 py-2 border-gray-600 footer">
       {children}
     </div>
   );

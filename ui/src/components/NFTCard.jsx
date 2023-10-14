@@ -2,17 +2,16 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Button from "./Button";
 import { useUI } from "../contexts/UIContext";
+import { useNftAvatar } from "../hooks/useNftAvatar";
 
 export default function NFTCard({ item, type }) {
-  // console.log(item);
   const { level, nftID, nftAddress, lastClaimed, rewardType, claimedDays } =
     item;
   const { handleClaim } = useUI();
   const [timeRemaining, setTimeRemaining] = useState("");
-  const [imgUrl, setImgUrl] = useState("");
   const [alreadyClaimed, setAlreadyClaimed] = useState(true);
 
-  // console.log(lastClaimed);
+  const { avatar: imgUrl } = useNftAvatar({ nftAddress, nftID, type });
 
   useEffect(() => {
     if (!lastClaimed) {
@@ -66,39 +65,9 @@ export default function NFTCard({ item, type }) {
     return () => clearInterval(interval);
   }, []);
 
-  // fetch image from imgUrl
-  const options = {
-    method: "GET",
-    headers: {
-      accept: "application/json",
-      "X-API-KEY": "dd6e3c26c1a24f09a9a174c1937a9326",
-    },
-  };
-  console.log(imgUrl);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const api_url = `https://api.opensea.io/v2/chain/matic/contract/${nftAddress}/nfts/${nftID}`;
-        const response = await fetch(api_url, options);
-        const data = await response.json();
-        console.log(data);
-        console.log(data.nft.image_url);
-        setImgUrl(data.nft.image_url);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchData();
-  }, [nftAddress, nftID]);
-
   return (
     <div className="bg-[#121e27] rounded-md overflow-hidden border border-gray-600 hover:border-pink-600 hover:scale-105 transition delay-100">
-      <img
-        src={imgUrl ? imgUrl : type == 1 ? "brainy.jpg" : "weary.jpg"}
-        // src="https://ipfs.io/ipfs/QmajSgqqWnPwhNDWLvoTcH9kbZAvUzx18rvqYpizLroioQ/2758.png"
-        alt=""
-        className="object-cover w-full"
-      />
+      <img src={imgUrl} alt="" className="object-cover w-full" />
       <div className="flex flex-col p-4 items-center gap-1">
         <h2 className="text-2xl italic text-center text-pink-600">
           NFT ID: {nftID}

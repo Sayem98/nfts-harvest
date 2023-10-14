@@ -21,3 +21,7 @@ button[disabled] {
 button[disabled]:hover {
   background: #777;
 }
+
+.footer:not(:has(*)) {
+  display: none;
+}

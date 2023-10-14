@@ -1,7 +1,9 @@
 const _ = require("lodash");
+const crypto = require("crypto");
 const services = require("../services");
 const User = require("../models/UserModel");
 const NFT = require("../models/NFTModel");
+const LuckyNFT = require("../models/LuckeyNFT");
 const NFT_1_ADDRESS = process.env.NFT_1_ADDRESS;
 const NFT_2_ADDRESS = process.env.NFT_2_ADDRESS;
 const { NFT_ABI, HERVEST_ABI } = require("../utils");
@@ -16,11 +18,11 @@ const getMonthsDays = (year, month) => {
   let x = 0;
   if (year % 400 === 0) {
     x = 29;
-  }else if(year % 100 === 0){
+  } else if (year % 100 === 0) {
     x = 28;
-  }else if(year % 4 === 0){
+  } else if (year % 4 === 0) {
     x = 29;
-  }else{
+  } else {
     x = 28;
   }
   const monthsDays = {
@@ -203,7 +205,11 @@ exports.getNFTsByType = async (req, res) => {
           await nft.save();
         } else if (todaysMonth > lastClaimedMonth) {
           //console.log("month issue");
-          if (todaysDay > 1 || getMonthsDays(lastClaimedYear,lastClaimedMonth) - lastClaimedDay > 0) {
+          if (
+            todaysDay > 1 ||
+            getMonthsDays(lastClaimedYear, lastClaimedMonth) - lastClaimedDay >
+              0
+          ) {
             //console.log(lastClaimedDay);
             //console.log(todaysDay);
             // more 24 hours has passed, reset claimedDays and level
@@ -216,7 +222,11 @@ exports.getNFTsByType = async (req, res) => {
             await nft.save();
           }
         } else if (todaysYear > lastClaimedYear) {
-          if (todaysDay > 1 || getMonthsDays(lastClaimedYear,lastClaimedMonth) - lastClaimedDay > 0) {
+          if (
+            todaysDay > 1 ||
+            getMonthsDays(lastClaimedYear, lastClaimedMonth) - lastClaimedDay >
+              0
+          ) {
             // more 24 hours has passed, reset claimedDays and level
             nft.claimedDays = 0;
             if (nft.level == nft.prevLevel) {
@@ -532,4 +542,71 @@ exports.finalClaim = async (req, res) => {
   }
 
   res.status(200).send("Claimed reward successfully");
+};
+
+exports.selectLuckyNft = async (req, res) => {
+  const nftType = req.params.nftType;
+
+  // return error if already selected today
+  const isExists = await LuckyNFT.findOne({
+    nftType,
+    createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
+  });
+
+  if (isExists) return res.status(400).send("Already selected for today");
+
+  let nfts = [];
+
+  if (nftType == 1) {
+    nfts = await NFT.find({ nftAddress: NFT_1_ADDRESS });
+  } else {
+    nfts = await NFT.find({ nftAddress: NFT_2_ADDRESS });
+  }
+
+  if (nfts.length <= 0) return res.status(400).send("No nfts found");
+
+  const min = 0;
+  const max = nfts.length;
+  console.log(max);
+  const randomBytes = crypto.randomInt(max); // 4 bytes provide a wide range of values
+  const range = max - min;
+  const index = (randomBytes % range) + min;
+
+  const luckyNft = nfts[index];
+
+  // save lucky nft in db
+  await LuckyNFT.create({
+    nft: luckyNft._id,
+    nftType: nftType,
+  });
+
+  res.send({ nft: luckyNft });
+};
+
+exports.getAllLuckyNfts = async (req, res) => {
+  const nftType = req.params.nftType;
+
+  const luckyNfts = await LuckyNFT.find({ nftType })
+    .populate("nft")
+    .sort({ createdAt: -1 });
+  res.send({ nfts: luckyNfts });
+};
+
+exports.getLuckyWinner = async (req, res) => {
+  try {
+    // find luck nft from db based on nftType and todays date
+    const luckyNftBrainy = await LuckyNFT.findOne({
+      nftType: 1,
+      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
+    }).populate("nft");
+
+    const luckyNftWeary = await LuckyNFT.findOne({
+      nftType: 2,
+      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
+    }).populate("nft");
+
+    res.send({ luckyNftBrainy, luckyNftWeary });
+  } catch (err) {
+    res.status(500).send("Something went wrong");
+  }
 };

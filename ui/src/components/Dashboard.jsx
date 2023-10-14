@@ -7,6 +7,7 @@ import NFTList from "./NFTList";
 import { useUI } from "../contexts/UIContext";
 import Modal from "./Modal";
 import Spinner from "./Spinner";
+import { useNftAvatar } from "../hooks/useNftAvatar";
 
 function CardItem({ title, value }) {
   return (
@@ -35,9 +36,30 @@ export default function Dashboard() {
     setPageWA,
     setSearchBB,
     setSearchWA,
+    luckyWinner,
   } = useUI();
 
+  const { nftAddress: nftAddressBrainy, nftID: nftIDBrainy } =
+    luckyWinner?.luckyNftBrainy?.nft || {};
+
+  const { nftAddress: nftAddressWeary, nftID: nftIDWeary } =
+    luckyWinner?.luckyNftWeary?.nft || {};
+
   const { address } = useAccount();
+
+  const { avatar: brainyAvatar } = useNftAvatar({
+    nftAddress: nftAddressBrainy,
+    nftID: nftIDBrainy,
+    type: 1,
+  });
+
+  const { avatar: wearyAvatar } = useNftAvatar({
+    nftAddress: nftAddressWeary,
+    nftID: nftIDWeary,
+    type: 2,
+  });
+
+  console.log(luckyWinner);
 
   const totalPageBB = Math.ceil(nftsBB.total / limit);
   const totalPageWA = Math.ceil(nftsWA.total / limit);
@@ -78,7 +100,77 @@ export default function Dashboard() {
     <div className="flex flex-col gap-16 sm:gap-24 mt-10">
       {(isLoading || isLoadingNFT || isLoadingUser) && <Spinner />}
       <SectionCard title="Dashboard">
-        <div className="py-6 flex flex-col gap-4">
+        <div className="flex gap-5 items-center justify-center md:justify-evenly w-full mt-10">
+          <div className="flex flex-col items-center gap-2">
+            <div
+              className={`uppercase ${
+                luckyWinner?.luckyNftBrainy ? "text-green-500" : "text-red-500"
+              } text-center`}
+            >
+              <p className="tracking-widest text-xl">
+                {luckyWinner?.luckyNftBrainy ? "Winner" : "No winner"}
+              </p>
+              <p className="text-pink-500">BRAINY BUDZ</p>
+            </div>
+            <img
+              src={brainyAvatar}
+              alt=""
+              className="w-72 rounded-md object-cover"
+            />
+            <div className="text-gray-200 text-lg">
+              NFT ID:
+              <span className="text-pink-600 font-bold ml-2">
+                {luckyWinner?.luckyNftBrainy?.nft?.nftID}
+              </span>
+            </div>
+            <div className="text-gray-200 text-lg">
+              Win:
+              <span className="text-pink-600 font-bold ml-2">100 REVL</span>
+            </div>
+          </div>
+          <div className="hidden py-6 md:flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-16">
+              {/* <CardItem title="Total hervest" value={toalHervert} /> */}
+              <CardItem title="Brainy Budz" value={nftsBB?.total || 0} />
+              <CardItem title="Balance" value={balance + " REVL"} />
+              <CardItem title="Weary Apes" value={nftsWA?.total || 0} />
+            </div>
+            <Button
+              className="self-center uppercase mt-5 px-12 sm:px-12 font-bold"
+              onClick={handleFinalClaim}
+            >
+              Claim
+            </Button>
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <div
+              className={`uppercase ${
+                luckyWinner?.luckyNftWeary ? "text-green-500" : "text-red-500"
+              } text-center`}
+            >
+              <p className="tracking-widest text-xl">
+                {luckyWinner?.luckyNftWeary ? "Winner" : "No winner"}
+              </p>
+              <p className="text-pink-500">WEARY APES</p>
+            </div>
+            <img
+              src={wearyAvatar}
+              alt=""
+              className="w-72 rounded-md object-cover"
+            />
+            <div className="text-gray-200 text-lg">
+              NFT ID:
+              <span className="text-pink-600 font-bold ml-2">
+                {luckyWinner?.luckyNftWeary?.nft?.nftID}
+              </span>
+            </div>
+            <div className="text-gray-200 text-lg">
+              Win:
+              <span className="text-pink-600 font-bold ml-2">200 REVL</span>
+            </div>
+          </div>
+        </div>
+        <div className="py-6 flex md:hidden flex-col gap-4 mt-6">
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-24">
             {/* <CardItem title="Total hervest" value={toalHervert} /> */}
             <CardItem title="Brainy Budz" value={nftsBB?.total || 0} />

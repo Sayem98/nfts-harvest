@@ -1,6 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
-dotenv.config();
+dotenv.config({ path: `${__dirname}/.env.${process.env.NODE_ENV}` });
 const cors = require("cors");
 const controller = require("./controllers/index");
 const { verifyOwnerValidateLevel } = require("./middlewares/index");
@@ -32,7 +32,10 @@ app.post(
 );
 
 app.post("/api/final-claim/:address", controller.finalClaim);
+app.get("/api/lucky-nft/:nftType", controller.getAllLuckyNfts);
+app.post("/api/lucky-nft/:nftType", controller.selectLuckyNft);
+app.get("/api/lucky-winner", controller.getLuckyWinner);
 
 app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}!`);
+  console.log(`App listening in [${process.env.NODE_ENV}] on port ${PORT}!`);
 });

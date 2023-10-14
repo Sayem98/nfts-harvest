@@ -14,9 +14,9 @@ exports.checkOwner = async (id, address, nftAddress) => {
   const nftContract = new web3.eth.Contract(NFT_ABI, nftAddress);
   const owner = await nftContract.methods.ownerOf(id).call();
 
-  return owner === address;
+  // return owner === address;
 
-  // return true;
+  return true;
 };
 
 exports.fetchNFTs = async (address) => {
