@@ -25,6 +25,8 @@ const NFTSchema = new Schema(
       type: Number,
       default: 0,
     },
+    rarity: Number,
+    imageUrl: String,
   },
   {
     timestamps: true,

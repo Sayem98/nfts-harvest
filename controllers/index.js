@@ -288,20 +288,28 @@ exports.createNFT = async (req, res) => {
 
       // if not exists, create nft in db
       if (!nft) {
+        // get nft rarity from opensea api
+        const { rarity, image_url } = await services.getNftData(
+          nftIDs[i],
+          nftAddress
+        );
+
         nft = new NFT({
           nftID: nftIDs[i],
           nftAddress,
           rewardType: nftAddress === NFT_1_ADDRESS ? 1 : 0.5,
           lastClaimed: null,
           prevLevel: 1,
+          rarity,
+          imageUrl: image_url,
         });
       }
 
       // If nft is already in user's nft list, return error
       const nfts = user?.nfts;
       let alreadyRegistered = false;
-      for (let i = 0; i < nfts.length; i++) {
-        if (nfts[i].id === nftIDs[i] && nfts[i].address === nftAddress) {
+      for (let j = 0; j < nfts.length; j++) {
+        if (nfts[j].id === nftIDs[i] && nfts[j].address === nftAddress) {
           alreadyRegistered = true;
           break;
         }
@@ -420,7 +428,7 @@ exports.claimReward = async (req, res) => {
         nft.claimedDays = nft.claimedDays + 1;
         nft.lastClaimed = new Date();
       }
-      user.reward = user.reward + nft.rewardType;
+      // user.reward = user.reward + nft.rewardType;
     } else {
       nft.claimedDays = 1;
       nft.level = nft.level;
@@ -428,6 +436,22 @@ exports.claimReward = async (req, res) => {
         nft.nftAddress === NFT_1_ADDRESS ? nft.level : nft.level * 0.5;
       nft.lastClaimed = new Date();
 
+      // user.reward = user.reward + nft.rewardType;
+    }
+
+    // calculate lucky nft reward
+    const luckyNft = await LuckyNFT.findOne({
+      nftType: nftAddress === NFT_1_ADDRESS ? 1 : 2,
+      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
+    });
+
+    if (luckyNft) {
+      if (luckyNft.nft.toString() === nft._id.toString()) {
+        user.reward = user.reward + (nftAddress === NFT_1_ADDRESS ? 100 : 50);
+      } else {
+        user.reward = user.reward + nft.rewardType;
+      }
+    } else {
       user.reward = user.reward + nft.rewardType;
     }
 
@@ -493,7 +517,7 @@ exports.claimRewardAll = async (req, res) => {
           nft.claimedDays = nft.claimedDays + 1;
           nft.lastClaimed = new Date();
         }
-        user.reward = user.reward + nft.rewardType;
+        // user.reward = user.reward + nft.rewardType;
       } else {
         nft.claimedDays = 1;
         nft.level = nft.level;
@@ -501,6 +525,22 @@ exports.claimRewardAll = async (req, res) => {
           nft.nftAddress === NFT_1_ADDRESS ? nft.level : nft.level * 0.5;
         nft.lastClaimed = new Date();
 
+        // user.reward = user.reward + nft.rewardType;
+      }
+
+      // calculate lucky nft reward
+      const luckyNft = await LuckyNFT.findOne({
+        nftType: nftAddress === NFT_1_ADDRESS ? 1 : 2,
+        createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
+      });
+
+      if (luckyNft) {
+        if (luckyNft.nft.toString() === nft._id.toString()) {
+          user.reward = user.reward + (nftAddress === NFT_1_ADDRESS ? 100 : 50);
+        } else {
+          user.reward = user.reward + nft.rewardType;
+        }
+      } else {
         user.reward = user.reward + nft.rewardType;
       }
 

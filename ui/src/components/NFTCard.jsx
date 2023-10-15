@@ -2,16 +2,20 @@ import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import Button from "./Button";
 import { useUI } from "../contexts/UIContext";
-import { useNftAvatar } from "../hooks/useNftAvatar";
 
-export default function NFTCard({ item, type }) {
-  const { level, nftID, nftAddress, lastClaimed, rewardType, claimedDays } =
-    item;
+export default function NFTCard({ item }) {
+  const {
+    level,
+    nftID,
+    nftAddress,
+    lastClaimed,
+    rewardType,
+    claimedDays,
+    imageUrl: imgUrl,
+  } = item;
   const { handleClaim } = useUI();
   const [timeRemaining, setTimeRemaining] = useState("");
   const [alreadyClaimed, setAlreadyClaimed] = useState(true);
-
-  const { avatar: imgUrl } = useNftAvatar({ nftAddress, nftID, type });
 
   useEffect(() => {
     if (!lastClaimed) {

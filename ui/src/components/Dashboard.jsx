@@ -7,7 +7,6 @@ import NFTList from "./NFTList";
 import { useUI } from "../contexts/UIContext";
 import Modal from "./Modal";
 import Spinner from "./Spinner";
-import { useNftAvatar } from "../hooks/useNftAvatar";
 
 function CardItem({ title, value }) {
   return (
@@ -39,27 +38,7 @@ export default function Dashboard() {
     luckyWinner,
   } = useUI();
 
-  const { nftAddress: nftAddressBrainy, nftID: nftIDBrainy } =
-    luckyWinner?.luckyNftBrainy?.nft || {};
-
-  const { nftAddress: nftAddressWeary, nftID: nftIDWeary } =
-    luckyWinner?.luckyNftWeary?.nft || {};
-
   const { address } = useAccount();
-
-  const { avatar: brainyAvatar } = useNftAvatar({
-    nftAddress: nftAddressBrainy,
-    nftID: nftIDBrainy,
-    type: 1,
-  });
-
-  const { avatar: wearyAvatar } = useNftAvatar({
-    nftAddress: nftAddressWeary,
-    nftID: nftIDWeary,
-    type: 2,
-  });
-
-  console.log(luckyWinner);
 
   const totalPageBB = Math.ceil(nftsBB.total / limit);
   const totalPageWA = Math.ceil(nftsWA.total / limit);
@@ -113,7 +92,7 @@ export default function Dashboard() {
               <p className="text-pink-500">BRAINY BUDZ</p>
             </div>
             <img
-              src={brainyAvatar}
+              src={luckyWinner?.luckyNftBrainy?.nft?.imageUrl || "/brainy.jpg"}
               alt=""
               className="w-72 rounded-md object-cover"
             />
@@ -154,7 +133,7 @@ export default function Dashboard() {
               <p className="text-pink-500">WEARY APES</p>
             </div>
             <img
-              src={wearyAvatar}
+              src={luckyWinner?.luckyNftWeary?.nft?.imageUrl || "/weary.jpg"}
               alt=""
               className="w-72 rounded-md object-cover"
             />

@@ -10,9 +10,9 @@ const NFT_2_ADDRESS = process.env.NFT_2_ADDRESS;
 const HERVEST_ADDRESS = process.env.HERVEST_ADDRESS;
 
 exports.checkOwner = async (id, address, nftAddress) => {
-  const web3 = new Web3(Web3.givenProvider || rpc);
-  const nftContract = new web3.eth.Contract(NFT_ABI, nftAddress);
-  const owner = await nftContract.methods.ownerOf(id).call();
+  // const web3 = new Web3(Web3.givenProvider || rpc);
+  // const nftContract = new web3.eth.Contract(NFT_ABI, nftAddress);
+  // const owner = await nftContract.methods.ownerOf(id).call();
 
   // return owner === address;
 
@@ -70,5 +70,28 @@ exports.updateUserRewardInChain = async (address, reward) => {
   } catch (err) {
     console.log(err);
     return false;
+  }
+};
+
+exports.getNftData = async (nftID, nftAddress) => {
+  const options = {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      "X-API-KEY": "dd6e3c26c1a24f09a9a174c1937a9326",
+    },
+  };
+
+  try {
+    const api_url = `https://api.opensea.io/v2/chain/matic/contract/${nftAddress}/nfts/${nftID}`;
+    const response = await fetch(api_url, options);
+    const data = await response.json();
+    const rarity = data.nft.rarity.rank;
+    const image_url = data.nft.image_url;
+
+    return { rarity, image_url };
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
   }
 };

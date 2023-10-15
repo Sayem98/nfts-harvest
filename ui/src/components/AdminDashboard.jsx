@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Pagination from "./Pagination";
 import Table from "./Table";
 import { useGetLuckyNfts } from "../hooks/useGetLuckyNfts";
@@ -35,15 +34,7 @@ function NFTDashboard({ title, handlePick, luckyNfts = [] }) {
               <span>{index + 1}</span>
               <span>{luckyNft.nft.nftID}</span>
               <span>{(Math.random() * 100).toFixed(2)}</span>
-              <span>
-                {new Intl.DateTimeFormat("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
-                  .format(new Date(luckyNft.nft.createdAt))
-                  .toString()}
-              </span>
+              <span>{luckyNft.createdAt.split("T")[0]}</span>
             </Table.Row>
           ))}
         </Table.Body>
