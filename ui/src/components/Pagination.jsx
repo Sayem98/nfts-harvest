@@ -1,25 +1,24 @@
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi2";
 import { useSearchParams } from "react-router-dom";
+import { PAGE_SIZE } from "../utils/constant";
 
-const PAGE_SIZE = 5;
-
-function Pagination({ count }) {
+function Pagination({ count, paginateKey }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentPage = !searchParams.get("page")
+  const currentPage = !searchParams.get(paginateKey)
     ? 1
-    : Number(searchParams.get("page"));
+    : Number(searchParams.get(paginateKey));
 
   const pageCount = Math.ceil(count / PAGE_SIZE);
 
   function handlePrev() {
     const prev = currentPage === 1 ? currentPage : currentPage - 1;
-    searchParams.set("page", prev);
+    searchParams.set(paginateKey, prev);
     setSearchParams(searchParams);
   }
 
   function handleNext() {
     const next = currentPage === pageCount ? currentPage : currentPage + 1;
-    searchParams.set("page", next);
+    searchParams.set(paginateKey, next);
     setSearchParams(searchParams);
   }
 
@@ -40,12 +39,14 @@ function Pagination({ count }) {
         <button
           className="hover:bg-pink-500 px-2 py-1 rounded-md font-semibold flex items-center"
           onClick={handlePrev}
+          disabled={currentPage === 1}
         >
           <HiChevronLeft /> <span>Previous</span>
         </button>
         <button
           className="hover:bg-pink-500 px-2 py-1 rounded-md font-semibold flex items-center"
           onClick={handleNext}
+          disabled={currentPage === pageCount}
         >
           <span>Next</span> <HiChevronRight />
         </button>

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const BASE_API = "https://nft-hervest-4e3c1ea606d9.herokuapp.com/api";
-const BASE_API = "http://localhost:5000/api";
+const BASE_API = import.meta.env.VITE_BASE_API_URL;
 export async function createNFT(nftID, nftAddress, address) {
   const { data } = await axios.post(`${BASE_API}/nfts`, {
     nftID,
@@ -47,13 +47,17 @@ export async function finalClaim(address) {
   return data;
 }
 
-export async function getAllLuckyNfts(nftType) {
-  const { data } = await axios.get(`${BASE_API}/lucky-nft/${nftType}`);
+export async function getAllLuckyNfts(nftType, address, page, limit) {
+  const { data } = await axios.get(
+    `${BASE_API}/lucky-nft/${nftType}/${address}?page=${page}&limit=${limit}`
+  );
   return data;
 }
 
-export async function selectLuckyNfts(nftType) {
-  const { data } = await axios.post(`${BASE_API}/lucky-nft/${nftType}`);
+export async function selectLuckyNfts(nftType, address) {
+  const { data } = await axios.post(
+    `${BASE_API}/lucky-nft/${nftType}/${address}`
+  );
   return data;
 }
 

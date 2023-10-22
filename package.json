@@ -5,10 +5,15 @@
   "scripts": {
     "start": "NODE_ENV=production node app.js",
     "dev": "NODE_ENV=development nodemon app.js",
-    "prod": "NODE_ENV=production nodemon app.js"
+    "prod": "NODE_ENV=production nodemon app.js",
+    "seed:dev": "NODE_ENV=development node seeder/index.js",
+    "seed:prod": "NODE_ENV=production node seeder/index.js",
+    "admin-seed:dev": "NODE_ENV=development node seeder/adminSeed.js",
+    "admin-seed:prod": "NODE_ENV=production node seeder/adminSeed.js"
   },
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.5.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",

@@ -1,5 +1,5 @@
 const _ = require("lodash");
-const crypto = require("crypto");
+const Web3 = require("web3");
 const services = require("../services");
 const User = require("../models/UserModel");
 const NFT = require("../models/NFTModel");
@@ -7,8 +7,26 @@ const LuckyNFT = require("../models/LuckeyNFT");
 const NFT_1_ADDRESS = process.env.NFT_1_ADDRESS;
 const NFT_2_ADDRESS = process.env.NFT_2_ADDRESS;
 const { NFT_ABI, HERVEST_ABI } = require("../utils");
-const Web3 = require("web3");
+const Admin = require("../models/Admin");
 const rpc = process.env.RPC;
+
+function weightedRandomNumber(weights) {
+  const cumulativeWeights = [1 / weights[0]];
+
+  for (let i = 1; i < weights.length; i++) {
+    cumulativeWeights.push(cumulativeWeights[i - 1] + 1 / weights[i]);
+  }
+
+  const randWeight = Math.floor(
+    Math.random() * (cumulativeWeights[cumulativeWeights.length - 1] + 1)
+  );
+
+  const index = cumulativeWeights.findIndex(
+    (cumulativeSum) => cumulativeSum > randWeight
+  );
+
+  return index;
+}
 
 /*
   explain what this function does
@@ -74,7 +92,7 @@ exports.getNFTs = async (req, res) => {
 
         if (todaysDay > lastClaimedDay && todaysDay - lastClaimedDay > 1) {
           // more 24 hours has passed, reset claimedDays and level
-          console.log("days issue");
+          // console.log("days issue");
           nft.claimedDays = 0;
           if (nft.level == nft.prevLevel) {
             nft.level = nft.level > 1 ? nft.level - 1 : nft.level;
@@ -83,7 +101,7 @@ exports.getNFTs = async (req, res) => {
             nft.nftAddress === NFT_1_ADDRESS ? nft.level : nft.level * 0.5;
           await nft.save();
         } else if (todaysMonth > lastClaimedMonth) {
-          console.log("month issue");
+          // console.log("month issue");
           if (lastClaimedDay > 1) {
             // more 24 hours has passed, reset claimedDays and level
             nft.claimedDays = 0;
@@ -195,7 +213,7 @@ exports.getNFTsByType = async (req, res) => {
 
         if (todaysDay > lastClaimedDay && todaysDay - lastClaimedDay > 1) {
           // more 24 hours has passed, reset claimedDays and level
-          console.log("days issue");
+          // console.log("days issue");
           nft.claimedDays = 0;
           if (nft.level == nft.prevLevel) {
             nft.level = nft.level > 1 ? nft.level - 1 : nft.level;
@@ -605,14 +623,13 @@ exports.selectLuckyNft = async (req, res) => {
 
   if (nfts.length <= 0) return res.status(400).send("No nfts found");
 
-  const min = 0;
-  const max = nfts.length;
-  console.log(max);
-  const randomBytes = crypto.randomInt(max); // 4 bytes provide a wide range of values
-  const range = max - min;
-  const index = (randomBytes % range) + min;
+  const rarityRanks = nfts.map((nft) => nft.rarity);
+  let randomIndex = -1;
+  while (randomIndex < 0) {
+    randomIndex = weightedRandomNumber(rarityRanks);
+  }
 
-  const luckyNft = nfts[index];
+  const luckyNft = nfts[randomIndex];
 
   // save lucky nft in db
   await LuckyNFT.create({
@@ -625,11 +642,17 @@ exports.selectLuckyNft = async (req, res) => {
 
 exports.getAllLuckyNfts = async (req, res) => {
   const nftType = req.params.nftType;
+  const page = Number(req.query.page);
+  const limit = Number(req.query.limit);
 
+  const count = await LuckyNFT.countDocuments({ nftType });
   const luckyNfts = await LuckyNFT.find({ nftType })
     .populate("nft")
+    .limit(limit)
+    .skip(limit * (page - 1))
     .sort({ createdAt: -1 });
-  res.send({ nfts: luckyNfts });
+
+  res.send({ nfts: luckyNfts, count });
 };
 
 exports.getLuckyWinner = async (req, res) => {
@@ -648,5 +671,18 @@ exports.getLuckyWinner = async (req, res) => {
     res.send({ luckyNftBrainy, luckyNftWeary });
   } catch (err) {
     res.status(500).send("Something went wrong");
+  }
+};
+
+exports.authenticate = async (req, res) => {
+  try {
+    const { address } = req.params;
+
+    const admin = await Admin.findOne({ address });
+    if (!admin) return res.status(403).json({ isAuthenticated: false });
+
+    return res.status(200).json({ isAuthenticated: true });
+  } catch (err) {
+    return res.status(500).json({ isAuthenticated: false });
   }
 };

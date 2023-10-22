@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Button from "./Button";
 import { useUI } from "../contexts/UIContext";
 
-export default function NFTCard({ item }) {
+export default function NFTCard({ item, type }) {
   const {
     level,
     nftID,
@@ -71,7 +71,11 @@ export default function NFTCard({ item }) {
 
   return (
     <div className="bg-[#121e27] rounded-md overflow-hidden border border-gray-600 hover:border-pink-600 hover:scale-105 transition delay-100">
-      <img src={imgUrl} alt="" className="object-cover w-full" />
+      <img
+        src={imgUrl ? imgUrl : type == 1 ? "brainy.jpg" : "weary.jpg"}
+        alt=""
+        className="object-cover w-full"
+      />
       <div className="flex flex-col p-4 items-center gap-1">
         <h2 className="text-2xl italic text-center text-pink-600">
           NFT ID: {nftID}

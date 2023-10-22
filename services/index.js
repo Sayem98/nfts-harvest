@@ -1,3 +1,4 @@
+const axios = require("axios");
 const Web3 = require("web3");
 const { NFT_ABI, HERVEST_ABI } = require("../utils");
 
@@ -10,13 +11,13 @@ const NFT_2_ADDRESS = process.env.NFT_2_ADDRESS;
 const HERVEST_ADDRESS = process.env.HERVEST_ADDRESS;
 
 exports.checkOwner = async (id, address, nftAddress) => {
-  // const web3 = new Web3(Web3.givenProvider || rpc);
-  // const nftContract = new web3.eth.Contract(NFT_ABI, nftAddress);
-  // const owner = await nftContract.methods.ownerOf(id).call();
+  const web3 = new Web3(Web3.givenProvider || rpc);
+  const nftContract = new web3.eth.Contract(NFT_ABI, nftAddress);
+  const owner = await nftContract.methods.ownerOf(id).call();
 
-  // return owner === address;
+  return owner === address;
 
-  return true;
+  // return true;
 };
 
 exports.fetchNFTs = async (address) => {
@@ -84,8 +85,8 @@ exports.getNftData = async (nftID, nftAddress) => {
 
   try {
     const api_url = `https://api.opensea.io/v2/chain/matic/contract/${nftAddress}/nfts/${nftID}`;
-    const response = await fetch(api_url, options);
-    const data = await response.json();
+    const { data } = await axios.get(api_url, options);
+
     const rarity = data.nft.rarity.rank;
     const image_url = data.nft.image_url;
 

@@ -46,7 +46,7 @@ export default function NFTList({
             />
           )}
         </div>
-        {show && total && (
+        {show && total !== 0 && (
           <div className="flex flex-col md:flex-row items-center gap-4">
             <div className="flex items-center gap-2">
               <input
@@ -71,7 +71,7 @@ export default function NFTList({
           </div>
         )}
 
-        {show && total && (
+        {show && total !== 0 && (
           <div className="self-end flex items-center gap-5 md:gap-8">
             <button
               className="bg-pink-600 transition hover:bg-pink-500 rounded-full p-1 shadow-xl"

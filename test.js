@@ -1,20 +1,8 @@
-// Example asset data with rarity ranks
-const assets = [
-  { name: "NFT1", rarityRank: 3 },
-  { name: "NFT2", rarityRank: 1 },
-  { name: "NFT3", rarityRank: 2 },
-  { name: "NFT3", rarityRank: 4 },
-  { name: "NFT3", rarityRank: 7 },
-  { name: "NFT3", rarityRank: 5 },
-  { name: "NFT3", rarityRank: 9 },
-  { name: "NFT3", rarityRank: 10 },
-  { name: "NFT3", rarityRank: 11 },
-  { name: "NFT3", rarityRank: 6 },
-  { name: "NFT3", rarityRank: 12 },
-  { name: "NFT3", rarityRank: 20 },
-  { name: "NFT3", rarityRank: 14 },
-  { name: "NFT3", rarityRank: 9 },
-];
+const dotenv = require("dotenv");
+dotenv.config({ path: `.env.development` });
+
+const NFT = require("./models/NFTModel");
+const db = require("./config/db");
 
 function weightedRandomNumber(weights) {
   const cumulativeWeights = [1 / weights[0]];
@@ -34,9 +22,20 @@ function weightedRandomNumber(weights) {
   return index;
 }
 
-const weights = [3, 2, 17, 4, 15, 7, 10, 1, 12];
-const randomIndex = weightedRandomNumber(weights);
-console.log("Randomly selected index:", randomIndex);
+db().then(async () => {
+  console.log("DB connection successful!");
+
+  const nfts = await NFT.find();
+
+  // create an array of rarity ranks
+  const rarityRanks = nfts.map((nft) => nft.rarity);
+  let randomIndex = -1;
+  while (randomIndex < 0) {
+    randomIndex = weightedRandomNumber(rarityRanks);
+  }
+
+  console.log(`Randomly selected index #${randomIndex}:`, nfts[randomIndex]);
+});
 
 // function selectNFTWithPriority(assets) {
 //   // Calculate weights based on inverse rarity rank (lower rank, higher weight)

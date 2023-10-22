@@ -1,11 +1,21 @@
+import { toast } from "react-toastify";
+import { useAccount } from "wagmi";
+import { useSearchParams } from "react-router-dom";
 import Pagination from "./Pagination";
 import Table from "./Table";
 import { useGetLuckyNfts } from "../hooks/useGetLuckyNfts";
 import Spinner from "./Spinner";
 import { selectLuckyNfts } from "../services/nftService";
-import { toast } from "react-toastify";
+import { PAGE_SIZE } from "../utils/constant";
 
-function NFTDashboard({ title, handlePick, luckyNfts = [] }) {
+function NFTDashboard({
+  title,
+  handlePick,
+  luckyNfts = [],
+  paginateKey,
+  count,
+  page,
+}) {
   return (
     <div className="flex flex-col items-center gap-5 bg-[#121e27] w-full rounded-md p-4 md:p-6">
       <div className="flex flex-col items-center gap-2 w-full">
@@ -31,15 +41,15 @@ function NFTDashboard({ title, handlePick, luckyNfts = [] }) {
         <Table.Body>
           {luckyNfts.map((luckyNft, index) => (
             <Table.Row key={index}>
-              <span>{index + 1}</span>
+              <span>{index + 1 + (page - 1) * PAGE_SIZE}</span>
               <span>{luckyNft.nft.nftID}</span>
-              <span>{(Math.random() * 100).toFixed(2)}</span>
+              <span>{luckyNft.nft.rarity}</span>
               <span>{luckyNft.createdAt.split("T")[0]}</span>
             </Table.Row>
           ))}
         </Table.Body>
         <Table.Footer>
-          <Pagination count={luckyNfts.length} />
+          <Pagination count={count} paginateKey={paginateKey} />
         </Table.Footer>
       </Table>
     </div>
@@ -47,12 +57,27 @@ function NFTDashboard({ title, handlePick, luckyNfts = [] }) {
 }
 
 function AdminDashboard() {
-  const { loading: loading1, nfts: brainyNfts } = useGetLuckyNfts(1);
-  const { loading: loading2, nfts: wearyNfts } = useGetLuckyNfts(2);
+  const { address } = useAccount();
+  const [searchParams] = useSearchParams();
+
+  const page_brainy = searchParams.get("page_brainy") || 1;
+  const page_weary = searchParams.get("page_weary") || 1;
+  const limit = PAGE_SIZE;
+
+  const {
+    loading: loading1,
+    nfts: brainyNfts,
+    count: brainyCount,
+  } = useGetLuckyNfts(1, address, page_brainy, limit);
+  const {
+    loading: loading2,
+    nfts: wearyNfts,
+    count: wearyCount,
+  } = useGetLuckyNfts(2, address, page_weary, limit);
 
   async function handleBrainyPick() {
     try {
-      await selectLuckyNfts(1);
+      await selectLuckyNfts(1, address);
       toast.success("Brainy Budz picked!");
       window.location.reload();
     } catch (err) {
@@ -63,7 +88,7 @@ function AdminDashboard() {
 
   async function handleWearyPick() {
     try {
-      await selectLuckyNfts(2);
+      await selectLuckyNfts(2, address);
       toast.success("Weary Apes picked!");
       window.location.reload();
     } catch (err) {
@@ -87,12 +112,18 @@ function AdminDashboard() {
         title="Brainy Budz Picker"
         luckyNfts={brainyNfts}
         handlePick={handleBrainyPick}
+        count={brainyCount}
+        paginateKey="page_brainy"
+        page={page_brainy}
       />
 
       <NFTDashboard
         title="Weary Picker"
         luckyNfts={wearyNfts}
         handlePick={handleWearyPick}
+        count={wearyCount}
+        paginateKey="page_weary"
+        page={page_weary}
       />
     </div>
   );
