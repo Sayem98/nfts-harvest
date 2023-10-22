@@ -1,11 +1,14 @@
 import { ConnectKitButton } from "connectkit";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "./Button";
 import Modal from "./Modal";
 import { useUI } from "../contexts/UIContext";
-import { Link } from "react-router-dom";
+import { useCurrentuser } from "../hooks/useCurrentUser";
 
 export default function Header() {
   const { modalOpen, setModalOpen, handleRegisterNFT } = useUI();
+  const navigate = useNavigate();
+  const { isAdmin, isLoading } = useCurrentuser();
 
   return (
     <header className="flex items-center justify-evenly sm:justify-between">
@@ -22,6 +25,9 @@ export default function Header() {
       <div className="hidden sm:flex items-center gap-4">
         <Button onClick={() => setModalOpen(true)}>Register NFT</Button>
         <ConnectKitButton />
+        {!isLoading && isAdmin && (
+          <Button onClick={() => navigate("/admin")}>Admin</Button>
+        )}
       </div>
       <Modal
         open={modalOpen}
