@@ -104,7 +104,10 @@ export default function Dashboard() {
             </div>
             <div className="text-gray-200 text-lg">
               Win:
-              <span className="text-pink-600 font-bold ml-2">100 REVL</span>
+              <span className="text-pink-600 font-bold ml-2">
+                {luckyWinner?.luckyNftBrainy?.rewardAmount || 0}
+                <span className="ml-2">REVL</span>
+              </span>
             </div>
           </div>
           <div className="hidden py-6 md:flex flex-col gap-4">
@@ -145,7 +148,10 @@ export default function Dashboard() {
             </div>
             <div className="text-gray-200 text-lg">
               Win:
-              <span className="text-pink-600 font-bold ml-2">200 REVL</span>
+              <span className="text-pink-600 font-bold ml-2">
+                {luckyWinner?.luckyNftWeary?.rewardAmount || 0}
+                <span className="ml-2">REVL</span>
+              </span>
             </div>
           </div>
         </div>

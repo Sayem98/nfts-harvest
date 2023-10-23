@@ -1,6 +1,6 @@
 function TableHeader({ children }) {
   return (
-    <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr] md:grid-cols-[1fr_2fr_2fr_1fr] border border-gray-600 w-full px-4 py-2 font-semibold">
+    <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_2fr_2fr_1fr_1fr] border border-gray-600 w-full px-4 py-2 font-semibold">
       {children}
     </div>
   );
@@ -16,7 +16,7 @@ function TableBody({ children }) {
 
 function TableRow({ children }) {
   return (
-    <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr] md:grid-cols-[1fr_2fr_2fr_1fr] px-4 md:py-2 border-b border-gray-600 first:border-t-0 last:border-b-0">
+    <div className="grid grid-cols-[0.5fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_2fr_2fr_1fr_1fr] text-sm px-4 md:py-2 border-b border-gray-600 first:border-t-0 last:border-b-0">
       {children}
     </div>
   );

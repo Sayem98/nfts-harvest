@@ -12,6 +12,7 @@ const LuckyNFTSchema = new Schema(
       type: String,
       required: true,
     },
+    rewardAmount: Number
   },
   {
     timestamps: true,

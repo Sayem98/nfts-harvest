@@ -418,14 +418,14 @@ exports.claimReward = async (req, res) => {
       const lastClaimedMonth = new Date(nft.lastClaimed).getMonth() + 1;
       const lastClaimedYear = new Date(nft.lastClaimed).getFullYear();
 
-      console.log(todaysDay, todaysMonth, todaysYear);
+      // console.log(todaysDay, todaysMonth, todaysYear);
 
-      console.log(lastClaimedDay, lastClaimedMonth, lastClaimedYear);
-      console.log(
-        todaysDay === lastClaimedDay &&
-          todaysMonth === lastClaimedMonth &&
-          todaysYear === lastClaimedYear
-      );
+      // console.log(lastClaimedDay, lastClaimedMonth, lastClaimedYear);
+      // console.log(
+      //   todaysDay === lastClaimedDay &&
+      //     todaysMonth === lastClaimedMonth &&
+      //     todaysYear === lastClaimedYear
+      // );
       if (
         todaysDay === lastClaimedDay &&
         todaysMonth === lastClaimedMonth &&
@@ -465,7 +465,7 @@ exports.claimReward = async (req, res) => {
 
     if (luckyNft) {
       if (luckyNft.nft.toString() === nft._id.toString()) {
-        user.reward = user.reward + (nftAddress === NFT_1_ADDRESS ? 100 : 50);
+        user.reward = user.reward + luckyNft.rewardAmount;
       } else {
         user.reward = user.reward + nft.rewardType;
       }
@@ -490,7 +490,6 @@ exports.claimRewardAll = async (req, res) => {
     const user = await User.findOne({ address });
 
     let nfts = user.nfts;
-    console.log(nftType);
     if (nftType == 1) {
       nfts = nfts.filter((nft) => nft.address === NFT_1_ADDRESS);
     } else if (nftType == 2) {
@@ -554,7 +553,7 @@ exports.claimRewardAll = async (req, res) => {
 
       if (luckyNft) {
         if (luckyNft.nft.toString() === nft._id.toString()) {
-          user.reward = user.reward + (nftAddress === NFT_1_ADDRESS ? 100 : 50);
+          user.reward = user.reward + luckyNft.rewardAmount;
         } else {
           user.reward = user.reward + nft.rewardType;
         }
@@ -604,6 +603,7 @@ exports.finalClaim = async (req, res) => {
 
 exports.selectLuckyNft = async (req, res) => {
   const nftType = req.params.nftType;
+  const { rewardAmount } = req.body;
 
   // return error if already selected today
   const isExists = await LuckyNFT.findOne({
@@ -635,6 +635,7 @@ exports.selectLuckyNft = async (req, res) => {
   await LuckyNFT.create({
     nft: luckyNft._id,
     nftType: nftType,
+    rewardAmount,
   });
 
   res.send({ nft: luckyNft });

@@ -54,9 +54,12 @@ export async function getAllLuckyNfts(nftType, address, page, limit) {
   return data;
 }
 
-export async function selectLuckyNfts(nftType, address) {
+export async function selectLuckyNfts(nftType, address, reward) {
   const { data } = await axios.post(
-    `${BASE_API}/lucky-nft/${nftType}/${address}`
+    `${BASE_API}/lucky-nft/${nftType}/${address}`,
+    {
+      rewardAmount: reward,
+    }
   );
   return data;
 }
