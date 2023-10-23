@@ -7,7 +7,7 @@ const db = require("../config/db");
 async function seed() {
   const nfts = await NFT.find();
 
-  for (let i = 0; i < nfts.length; i++) {
+  for (let i = 2325; i < nfts.length; i++) {
     const nft = nfts[i];
 
     const { rarity, image_url } = await getNftData(nft?.nftID, nft.nftAddress);
