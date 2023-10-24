@@ -464,7 +464,20 @@ exports.claimReward = async (req, res) => {
     });
 
     if (luckyNft) {
-      if (luckyNft.nft.toString() === nft._id.toString()) {
+      const todaysDay = new Date().getDate();
+      const todaysMonth = new Date().getMonth() + 1;
+      const todaysYear = new Date().getFullYear();
+
+      const luckyNFTDay = new Date(luckyNft.createdAt).getDate();
+      const luckyNFTMonth = new Date(luckyNft.createdAt).getMonth() + 1;
+      const luckyNFTYear = new Date(luckyNft.createdAt).getFullYear();
+
+      if (
+        luckyNft.nft.toString() === nft._id.toString() &&
+        todaysDay === luckyNFTDay &&
+        todaysMonth === luckyNFTMonth &&
+        todaysYear === luckyNFTYear
+      ) {
         user.reward = user.reward + luckyNft.rewardAmount;
       } else {
         user.reward = user.reward + nft.rewardType;
@@ -552,7 +565,20 @@ exports.claimRewardAll = async (req, res) => {
       });
 
       if (luckyNft) {
-        if (luckyNft.nft.toString() === nft._id.toString()) {
+        const todaysDay = new Date().getDate();
+        const todaysMonth = new Date().getMonth() + 1;
+        const todaysYear = new Date().getFullYear();
+
+        const luckyNFTDay = new Date(luckyNft.createdAt).getDate();
+        const luckyNFTMonth = new Date(luckyNft.createdAt).getMonth() + 1;
+        const luckyNFTYear = new Date(luckyNft.createdAt).getFullYear();
+
+        if (
+          luckyNft.nft.toString() === nft._id.toString() &&
+          todaysDay === luckyNFTDay &&
+          todaysMonth === luckyNFTMonth &&
+          todaysYear === luckyNFTYear
+        ) {
           user.reward = user.reward + luckyNft.rewardAmount;
         } else {
           user.reward = user.reward + nft.rewardType;
