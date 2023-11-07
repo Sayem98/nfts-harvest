@@ -11,18 +11,19 @@ const Admin = require("../models/Admin");
 const rpc = process.env.RPC;
 
 function weightedRandomNumber(weights) {
-  const cumulativeWeights = [1 / weights[0]];
-
+  // Calculate the cumulative weights of the reciprocals (smaller weights have higher influence)
+  let cumulativeWeights = [1 / weights[0]];
   for (let i = 1; i < weights.length; i++) {
-    cumulativeWeights.push(cumulativeWeights[i - 1] + 1 / weights[i]);
+    cumulativeWeights[i] = cumulativeWeights[i - 1] + 1 / weights[i];
   }
 
-  const randWeight = Math.floor(
-    Math.random() * (cumulativeWeights[cumulativeWeights.length - 1] + 1)
-  );
+  // Generate a random number between 0 and the total of the cumulative weights
+  let totalWeight = cumulativeWeights[cumulativeWeights.length - 1];
+  let randWeight = Math.random() * totalWeight;
 
-  const index = cumulativeWeights.findIndex(
-    (cumulativeSum) => cumulativeSum > randWeight
+  // Find the index where the cumulative weight is greater than the random weight
+  let index = cumulativeWeights.findIndex(
+    (cumulativeSum) => randWeight < cumulativeSum
   );
 
   return index;
@@ -637,7 +638,7 @@ exports.selectLuckyNft = async (req, res) => {
     createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
   });
 
-  if (isExists) return res.status(400).send("Already selected for today");
+  if (isExists) return res.status(400).send("Already selected for today !");
 
   let nfts = [];
 
@@ -649,13 +650,27 @@ exports.selectLuckyNft = async (req, res) => {
 
   if (nfts.length <= 0) return res.status(400).send("No nfts found");
 
-  const rarityRanks = nfts.map((nft) => nft.rarity);
+  const sortedNft = [...nfts].sort((a, b) => a.rarity - b.rarity);
+  const rarityRanks = sortedNft.map((nft) => nft.rarity);
   let randomIndex = -1;
+  const lastLuckyNft = await LuckyNFT.find()
+    .populate("nft")
+    .sort({ createdAt: -1 })
+    .limit(1);
+
   while (randomIndex < 0) {
     randomIndex = weightedRandomNumber(rarityRanks);
+    if (lastLuckyNft.length > 0) {
+      if (
+        lastLuckyNft[0].nft.nftID === sortedNft[randomIndex].nftID &&
+        lastLuckyNft[0].nft.nftAddress === sortedNft[randomIndex].nftAddress
+      ) {
+        randomIndex = -1;
+      }
+    }
   }
 
-  const luckyNft = nfts[randomIndex];
+  const luckyNft = sortedNft[randomIndex];
 
   // save lucky nft in db
   await LuckyNFT.create({

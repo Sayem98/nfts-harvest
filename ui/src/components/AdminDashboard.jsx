@@ -55,10 +55,10 @@ function NFTDashboard({
           {luckyNfts.map((luckyNft, index) => (
             <Table.Row key={index}>
               <span>{index + 1 + (page - 1) * PAGE_SIZE}</span>
-              <span>{luckyNft.nft.nftID}</span>
-              <span>{luckyNft.nft.rarity}</span>
-              <span>{luckyNft.rewardAmount} REVL</span>
-              <span>{luckyNft.createdAt.split("T")[0]}</span>
+              <span>{luckyNft?.nft?.nftID}</span>
+              <span>{luckyNft?.nft?.rarity}</span>
+              <span>{luckyNft?.rewardAmount} REVL</span>
+              <span>{luckyNft?.createdAt.split("T")[0]}</span>
             </Table.Row>
           ))}
         </Table.Body>
